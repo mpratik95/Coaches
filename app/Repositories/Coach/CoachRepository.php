@@ -21,4 +21,8 @@ class CoachRepository implements CoachInterface
     {
         return $this->coach->getCoachesBasedData($timezone,$user_name);
     }
+
+    public function getAll(){
+        return $this->coach->getAllData();
+    }
 }

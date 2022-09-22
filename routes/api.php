@@ -21,3 +21,4 @@ use App\Http\Controllers\Api\CoachController;
 
 Route::get('/get_timezone_data',[CoachController::class,'getTimeZoneData']);
 Route::get('/get_coach_time_based_data',[CoachController::class,'getCoachAndTimeWiseData']);
+Route::get('/get_converted_timezone_data',[CoachController::class,'getConvertedTimezoneData']);

@@ -5,5 +5,6 @@ interface CoachInterface{
 
     public function getTimezoneData($timezone);
     public function getCoachData($timezone,$user_name);
+    public function getAll();
     
 }

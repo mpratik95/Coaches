@@ -24,4 +24,9 @@ class Coach extends Model
     
         return static::where('timezone',$timezone)->where('name','like','%'.$user_name.'%')->get(['emp_id','name','day','available_at','available_until']);
     }
+
+    public function getAllData(){
+
+        return static::all();
+    }
 }

@@ -9,6 +9,9 @@ use Exception;
 use App\Models\Coach;
 use DB;
 use App\Repositories\Coach\CoachInterface as CoachInterface;
+use DateTimeZone;
+use DateTimeImmutable;
+
 
 class CoachController extends Controller
 {
@@ -139,5 +142,65 @@ class CoachController extends Controller
             }                
         }
         return $data;
+    }
+
+    public function getConvertedTimezoneData(Request $request){
+        $validateData = Validator::make($request->all(),[
+            'timezone' => 'required|exists:coaches,timezone',
+        ]);
+
+        if($validateData->fails()){
+            return response([
+                'status' => false,
+                'status_code' => 400,
+                'status_message' => $validateData->errors()
+            ]);
+        }
+        try{
+            $timezone_array = array();
+            $timezone_array['IST'] = 'Asia/Kolkata';
+            $timezone_array['EST'] = 'Europe/Amsterdam';
+            $timezone_array['PST'] = 'Asia/Karachi';
+            $timezone = $request->timezone;
+
+            $user_data = $this->coach->getAll(); 
+            
+            foreach($user_data as $k => $value){
+                if($value->timezone != $timezone){
+                    $from = new DateTimeImmutable('2000-01-01'.$value->available_at, new DateTimeZone( $timezone_array[$value->timezone]));
+                    $to = new DateTimeImmutable('2000-01-01'.$value->available_until, new DateTimeZone( $timezone_array[$value->timezone]));
+                    $from = $from->setTimezone(new DateTimeZone($timezone_array[$timezone]));
+                    $to = $to->setTimezone(new DateTimeZone($timezone_array[$timezone]));
+
+
+                    $user_data[$k]['available_at'] = $from->format('H:i:s');
+                    $user_data[$k]['available_until'] = $to->format('H:i:s');
+                    $user_data[$k]['timezone'] = $timezone;
+                }
+            }
+            if(!empty($user_data)){
+                return response([
+                    'status' => true,
+                    'status_code' => 200,
+                    'status_message' => 'Coaches Data Sucessfully',
+                    'data' => $user_data
+                ]);
+            }
+            else{
+                return response([
+                    'status' => false,
+                    'status_code' => 400,
+                    'status_message' => 'Coaches Availability Not Found'
+                ]);
+            }
+
+        }
+        catch(Exception $e){
+            return response([
+                'status' => false,
+                'status_code' => 500,
+                'status_message' => $e->getMessage()
+            ]);
+        }
     }
 }
